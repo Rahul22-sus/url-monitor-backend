@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time URL Monitor</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        table { width: 80%; margin: auto; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid black; }
+        .working { background-color: lightgreen; }
+        .not-working { background-color: lightcoral; }
+        #summary { font-size: 18px; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Real-Time URL Monitoring</h2>
+    
+    <div id="summary">Checking URLs...</div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="urlTable">
+        </tbody>
+    </table>
+
+    <script>
+        function checkUrls() {
+            fetch("http://localhost:3000/check-urls")
+                .then(response => response.json())
+                .then(data => updateTable(data))
+                .catch(error => console.error("Error fetching data:", error));
+        }
+
+        function updateTable(data) {
+            const tableBody = document.getElementById("urlTable");
+            const summaryDiv = document.getElementById("summary");
+            tableBody.innerHTML = "";
+
+            let workingCount = 0;
+            let notWorkingCount = 0;
+
+            data.forEach(entry => {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td>${entry.url}</td><td class="${entry.success ? 'working' : 'not-working'}">${entry.status}</td>`;
+                tableBody.appendChild(row);
+
+                if (entry.success) {
+                    workingCount++;
+                } else {
+                    notWorkingCount++;
+                }
+            });
+
+            summaryDiv.innerHTML = `✅ Working: ${workingCount} | ❌ Not Working: ${notWorkingCount} | 🔄 Total: ${data.length}`;
+        }
+
+        checkUrls();
+        setInterval(checkUrls, 10000);
+    </script>
+</body>
+</html>
