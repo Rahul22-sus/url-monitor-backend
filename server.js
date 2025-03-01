@@ -1,30 +1,24 @@
 const express = require('express');
 const axios = require('axios');
-const cors = require('cors');
-
 const app = express();
-app.use(cors()); // Allow frontend requests
 
-const urls = [
-    "https://www.google.com",
-    "https://www.mahadiscom.in/",
-    "https://wss.mahadiscom.in/EDapp/Login.aspx",
-    "http://10.10.66.5:8080/billingapp/login"
-];
+const PORT = process.env.PORT || 3000;
 
-app.get('/check-urls', async (req, res) => {
-    const results = await Promise.all(
-        urls.map(async (url) => {
-            try {
-                const response = await axios.get(url, { timeout: 5000 });
-                return { url, status: response.status === 200 ? "✅ Working" : "⚠️ Issue", success: true };
-            } catch (error) {
-                return { url, status: "❌ Not Working", success: false };
-            }
-        })
-    );
-
-    res.json(results);
+// Root route
+app.get('/', (req, res) => {
+    res.send('Server is running!');
 });
 
-app.listen(3000, () => console.log("Server running on port 3000"));
+// Example API route (Modify as needed)
+app.get('/check', async (req, res) => {
+    try {
+        const response = await axios.get('https://example.com');
+        res.json({ status: response.status, data: response.data });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
